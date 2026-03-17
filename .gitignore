@@ -1,0 +1,53 @@
+# ── CREDENCIAIS E SEGREDOS (CRÍTICO — NUNCA VERSIONAR) ────────────────────────
+.env
+.env.*
+!.env.example
+api-google.json
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+*.jks
+
+# ── BANCO DE DADOS ────────────────────────────────────────────────────────────
+db.sqlite3
+db.sqlite3-journal
+*.db
+
+# ── PYTHON ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# ── DJANGO ────────────────────────────────────────────────────────────────────
+*.log
+local_settings.py
+staticfiles/
+media/
+
+# ── AMBIENTES VIRTUAIS ────────────────────────────────────────────────────────
+venv/
+env/
+.venv/
+.env.local
+
+# ── IDEs ──────────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── SQUARECLOUD ───────────────────────────────────────────────────────────────
+# squarecloud.app pode ser versionado, mas NÃO coloque segredos nele

@@ -1,0 +1,83 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Configurações | Meu SaaS</title>
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <style>
+        /* CSS Extra só para o formulário ficar bonito */
+        .settings-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 600px;
+        }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; color: #374151; font-weight: 500;}
+        .form-group input[type="text"] {
+            width: 100%; padding: 10px; border: 1px solid #D1D5DB; border-radius: 6px;
+        }
+        .btn-save {
+            background-color: #4F46E5; color: white; padding: 10px 20px; 
+            border: none; border-radius: 6px; cursor: pointer; font-size: 1rem;
+        }
+        .btn-save:hover { background-color: #4338ca; }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="logo"><span class="material-icons-outlined">rocket_launch</span> SaaS Name</div>
+        <ul class="nav-links">
+            <li><a href="{% url 'home' %}"><span class="material-icons-outlined">dashboard</span> Dashboard</a></li>
+            <li><a href="#" class="active"><span class="material-icons-outlined">settings</span> Configurações</a></li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <h2>Configurações de Perfil</h2>
+            <div class="user-profile">
+                <img src="{{ user.get_foto_url }}" alt="Perfil" class="avatar-img">
+            </div>
+        </header>
+
+        <section class="settings-card">
+            
+            {% if messages %}
+                {% for message in messages %}
+                    <div style="background:#D1FAE5; color:#065F46; padding:10px; border-radius:6px; margin-bottom:20px;">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label>Foto de Perfil</label>
+                    <div style="display:flex; align-items:center; gap:15px; margin-bottom:10px;">
+                        <img src="{{ user.get_foto_url }}" style="width:60px; height:60px; border-radius:50%; object-fit:cover;">
+                        {{ form.foto }}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Nome</label>
+                    {{ form.first_name }}
+                </div>
+
+                <div class="form-group">
+                    <label>Sobrenome</label>
+                    {{ form.last_name }}
+                </div>
+
+                <button type="submit" class="btn-save">Salvar Alterações</button>
+            </form>
+        </section>
+    </main>
+</body>
+</html>

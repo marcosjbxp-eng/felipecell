@@ -1,0 +1,115 @@
+:root {
+    --primary-color: #4f46e5;       
+    --primary-hover: #4338ca;       
+    --background-bg: #f3f4f6;       
+    --card-bg: #ffffff;             
+    --text-dark: #1f2937;           
+    --text-medium: #6b7280;         
+    --border-color: #d1d5db;        
+    --focus-ring: rgba(79, 70, 229, 0.25);
+    --radius-md: 12px;
+    --radius-sm: 8px;
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--background-bg);
+    color: var(--text-dark);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.container {
+    background-color: var(--card-bg);
+    width: 100%;
+    max-width: 550px;
+    padding: 2rem;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+}
+
+.card-header { text-align: center; margin-bottom: 2rem; }
+.icon-header { 
+    background: #e0e7ff; 
+    width: 60px; height: 60px; 
+    border-radius: 50%; 
+    display: flex; align-items: center; justify-content: center; 
+    margin: 0 auto 1rem auto; color: var(--primary-color);
+}
+.icon-header span { font-size: 32px; }
+.card-header h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; }
+.card-header p { color: var(--text-medium); font-size: 0.9rem; }
+
+/* Grid de Inputs */
+.form-cadastro { display: flex; flex-direction: column; gap: 1.25rem; }
+.row-inputs { display: flex; gap: 1rem; }
+.flex-1 { flex: 1; }
+
+@media (max-width: 480px) {
+    .row-inputs { flex-direction: column; gap: 1.25rem; }
+}
+
+.grupo-input { display: flex; flex-direction: column; text-align: left; }
+.grupo-input label { font-size: 0.85rem; font-weight: 600; color: #374151; margin-bottom: 0.4rem; }
+
+.grupo-input input, .grupo-input textarea {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 0.95rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    transition: 0.2s;
+    font-family: inherit;
+}
+
+.grupo-input textarea { resize: vertical; min-height: 80px; }
+.grupo-input input:focus, .grupo-input textarea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--focus-ring);
+    outline: none;
+}
+
+/* Radio Buttons Estilizados */
+.sistema-selector { display: flex; gap: 10px; }
+.sistema-selector input[type="radio"] { display: none; }
+.radio-card {
+    flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 10px; border: 1px solid var(--border-color); border-radius: var(--radius-sm);
+    cursor: pointer; font-size: 0.85rem; font-weight: 500; color: var(--text-medium);
+    transition: 0.2s;
+}
+
+.radio-card:hover { background-color: #f9fafb; }
+
+#sys_android:checked + .radio-card.android { background: #d1fae5; color: #065f46; border-color: #10b981; }
+#sys_ios:checked + .radio-card.ios { background: #e0e7ff; color: #3730a3; border-color: #6366f1; }
+#sys_windows:checked + .radio-card.default { background: #f3f4f6; color: #1f2937; border-color: #9ca3af; }
+
+/* Botões */
+.actions { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+.btn-salvar {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; padding: 0.85rem; font-size: 1rem; font-weight: 600;
+    color: white; background-color: var(--primary-color);
+    border: none; border-radius: var(--radius-sm); cursor: pointer;
+    transition: 0.2s;
+}
+.btn-salvar:hover { background-color: var(--primary-hover); transform: translateY(-1px); }
+
+.btn-voltar {
+    width: 100%; padding: 0.85rem; font-size: 0.95rem; font-weight: 500;
+    color: var(--text-medium); background: transparent;
+    border: 1px solid var(--border-color); border-radius: var(--radius-sm); cursor: pointer;
+}
+.btn-voltar:hover { background: #f3f4f6; color: var(--text-dark); }
+
+/* Alertas */
+.alerta { padding: 0.75rem; border-radius: var(--radius-sm); font-size: 0.9rem; margin-bottom: 1rem; text-align: center;}
+.alerta.success { background-color: #d1fae5; color: #065f46; }
+.alerta.error { background-color: #fee2e2; color: #991b1b; }

@@ -1,0 +1,264 @@
+{% load static %}
+{% load socialaccount %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel TechManager</title>
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="material-icons-outlined brand-icon">verified_user</span>
+            <span>TechManager</span>
+        </div>
+        <div class="nav-actions">
+            <a href="/add" class="btn-new">
+                <span class="material-icons-outlined">add</span> Novo Serviço
+            </a>
+            <div class="user-menu">
+                <span class="user-name">{{ user.username|default:'Admin' }}</span>
+                <form action="{% url 'account_logout' %}" method="post" id="logout-form">
+                    {% csrf_token %}
+                    <button type="button" onclick="document.getElementById('logout-form').submit();" class="logout-btn" title="Sair">
+                        <span class="material-icons-outlined">logout</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-container">
+        
+        <!-- Relatório Financeiro -->
+        <section class="financial-overview">
+            <div class="dashboard-grid">
+                <!-- Lucros (Baseado na Data de Saída) -->
+                <div class="card kpi-card">
+                    <div class="kpi-label">Lucro Hoje</div>
+                    <div class="kpi-value text-green">R$ {{ kpi.dia }}</div>
+                    <div class="kpi-icon bg-green-light text-green"><span class="material-icons-outlined">attach_money</span></div>
+                </div>
+                <div class="card kpi-card">
+                    <div class="kpi-label">Lucro Semana</div>
+                    <div class="kpi-value text-blue">R$ {{ kpi.semana }}</div>
+                    <div class="kpi-icon bg-blue-light text-blue"><span class="material-icons-outlined">date_range</span></div>
+                </div>
+                
+                <!-- Status Operacional -->
+                <div class="card kpi-card">
+                    <div class="kpi-label">Pendentes na Bancada</div>
+                    <div class="kpi-value text-orange">{{ kpi.pendentes }}</div>
+                    <div class="kpi-icon bg-orange-light text-orange"><span class="material-icons-outlined">build</span></div>
+                </div>
+                <div class="card kpi-card">
+                    <div class="kpi-label">Garantias Ativas</div>
+                    <div class="kpi-value text-purple">{{ kpi.garantias_ativas }}</div>
+                    <div class="kpi-icon bg-purple-light text-purple"><span class="material-icons-outlined">security</span></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Listagem -->
+        <section class="services-section">
+            <div class="card list-card">
+                <div class="filter-toolbar">
+                    <div class="search-wrapper">
+                        <span class="material-icons-outlined">search</span>
+                        <input type="text" id="searchInput" placeholder="Buscar cliente, aparelho ou ID...">
+                    </div>
+                    <div class="filter-actions">
+                        <button class="pill-btn active" onclick="filterStatus('all', this)">Todos</button>
+                        <button class="pill-btn" onclick="filterStatus('pending', this)">Pendentes</button>
+                        <button class="pill-btn" onclick="filterStatus('warranty', this)">Em Garantia</button>
+                        <button class="pill-btn" onclick="filterStatus('expired', this)">Finalizados</button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Entrada / Saída</th>
+                                <th>Cliente</th>
+                                <th>Aparelho / Defeito</th>
+                                <th>Status da Garantia</th>
+                                <th style="text-align: center;">Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
+                <div id="no-results" style="display:none; text-align: center; padding: 20px; color: #999;">
+                    <p>Nenhum serviço encontrado.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal Finalizar -->
+    <div id="modalFinalizar" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Finalizar Serviço</h3>
+            <p>Confirme os dados para liberar o aparelho de <strong id="modalClientName">...</strong></p>
+            
+            <form id="formFinalizar">
+                <input type="hidden" id="modalServiceId">
+                
+                <div class="input-money-wrapper">
+                    <span>R$</span>
+                    <input type="text" id="modalValor" placeholder="0,00" required autocomplete="off">
+                </div>
+
+                <div class="input-group-select">
+                    <label for="modalGarantia">Período de Garantia:</label>
+                    <select id="modalGarantia" class="custom-select">
+                        <option value="90" selected>90 Dias (Padrão)</option>
+                        <option value="0">Sem Garantia</option>
+                        <option value="180">180 Dias (6 Meses)</option>
+                        <option value="360">360 Dias (1 Ano)</option>
+                    </select>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closeModal()">Cancelar</button>
+                    <button type="submit" class="btn-confirm">Confirmar Saída</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const servicesData = {{ dados|safe }};
+        let currentFilter = 'all';
+        let currentSearch = '';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderTable();
+            
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                currentSearch = e.target.value.toLowerCase();
+                renderTable();
+            });
+
+            // Máscara de dinheiro simples
+            const moneyInput = document.getElementById('modalValor');
+            moneyInput.addEventListener('input', (e) => {
+                let value = e.target.value.replace(/\D/g, "");
+                value = (value/100).toFixed(2) + "";
+                value = value.replace(".", ",");
+                value = value.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
+                e.target.value = value;
+            });
+        });
+
+        function filterStatus(status, btn) {
+            currentFilter = status;
+            document.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderTable();
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            
+            const filtered = servicesData.filter(item => {
+                const matchStatus = currentFilter === 'all' || item.classe_status === currentFilter;
+                const searchStr = (item.nome + ' ' + item.aparelho + ' ' + item.numero).toLowerCase();
+                const matchSearch = searchStr.includes(currentSearch);
+                return matchStatus && matchSearch;
+            });
+
+            if (filtered.length === 0) {
+                document.getElementById('no-results').style.display = 'block';
+                return;
+            }
+            document.getElementById('no-results').style.display = 'none';
+
+            filtered.forEach(item => {
+                const tr = document.createElement('tr');
+                
+                // Definição visual baseada na classe do backend
+                let statusBadge = '';
+                let actionContent = '';
+                let datas = `<div class="date-cell">Entrada: ${item.data_entrada}</div>`;
+
+                if (item.classe_status === 'pending') {
+                    statusBadge = `<span class="badge badge-pending">Pendente</span>`;
+                    actionContent = `<button class="btn-action" onclick="openModal('${item.id}', '${item.nome}')">Finalizar</button>`;
+                } else if (item.classe_status === 'warranty') {
+                    datas += `<div class="date-cell out">Saída: ${item.data_saida}</div>`;
+                    statusBadge = `<span class="badge badge-warranty"><span class="material-icons-outlined" style="font-size:12px">verified</span> ${item.status}</span>`;
+                    statusBadge += `<div class="price-value">Valor: R$ ${item.valor}</div>`;
+                    actionContent = `<span class="material-icons-outlined text-purple" title="Em Garantia">security</span>`;
+                } else { // expired
+                    datas += `<div class="date-cell out">Saída: ${item.data_saida || '?'}</div>`;
+                    statusBadge = `<span class="badge badge-expired">${item.status}</span>`;
+                    statusBadge += `<div class="price-value text-muted">Valor: R$ ${item.valor}</div>`;
+                    actionContent = `<span class="material-icons-outlined text-gray">history</span>`;
+                }
+
+                tr.innerHTML = `
+                    <td>${datas}</td>
+                    <td>
+                        <div class="client-name">${item.nome}</div>
+                        <div class="client-contact">${item.numero}</div>
+                    </td>
+                    <td>
+                        <div class="device-name">${item.aparelho}</div>
+                        <div class="defect-desc" title="${item.defeito}">${item.defeito}</div>
+                    </td>
+                    <td>${statusBadge}</td>
+                    <td style="text-align: center;">${actionContent}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        const modal = document.getElementById('modalFinalizar');
+
+        function openModal(id, nome) {
+            document.getElementById('modalServiceId').value = id;
+            document.getElementById('modalClientName').innerText = nome;
+            document.getElementById('modalValor').value = '';
+            // Reseta a garantia para 90 dias por padrão ao abrir
+            document.getElementById('modalGarantia').value = '90';
+            modal.classList.add('active');
+            setTimeout(() => document.getElementById('modalValor').focus(), 100);
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+        }
+
+        document.getElementById('formFinalizar').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('modalServiceId').value;
+            const valor = document.getElementById('modalValor').value;
+            const garantia = document.getElementById('modalGarantia').value;
+
+            const response = await fetch('/atualizar_servico/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    id: id, 
+                    valor: valor,
+                    garantia: garantia // Envia a garantia escolhida
+                })
+            });
+            
+            // Recarrega sem checar erro (conforme solicitado fail fast)
+            window.location.reload();
+        });
+    </script>
+</body>
+</html>

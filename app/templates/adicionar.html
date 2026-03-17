@@ -1,0 +1,102 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novo Atendimento</title>
+    <link rel="stylesheet" href="{% static 'css/add.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+</head>
+<body>
+
+    <main class="container">
+        
+        <header class="card-header">
+            <div class="icon-header">
+                <span class="material-icons-outlined">build_circle</span>
+            </div>
+            <h1>Abrir Ordem de Serviço</h1>
+            <p>Registre os detalhes do aparelho e o defeito relatado.</p>
+        </header>
+
+        {% if messages %}
+            <div class="mensagens-container">
+                {% for message in messages %}
+                    <div class="alerta {{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form action="{% url 'add-planilha' %}" method="POST" class="form-cadastro">
+            {% csrf_token %}
+
+            <div class="row-inputs">
+                <div class="grupo-input flex-1">
+                    <label for="id_nome">Nome do Cliente</label>
+                    <input type="text" id="id_nome" name="nome" placeholder="Nome completo" required>
+                </div>
+
+                <div class="grupo-input flex-1">
+                    <label for="id_numero">WhatsApp / Contato</label>
+                    <input type="tel" id="id_numero" name="numero" placeholder="(00) 00000-0000">
+                </div>
+            </div>
+
+            <div class="grupo-input">
+                <label for="id_produto">Modelo do Dispositivo</label>
+                <input type="text" id="id_produto" name="aparelho" placeholder="Ex: Samsung S23, Dell Inspiron..." required>
+            </div>
+
+            <div class="grupo-input">
+                <label>Sistema Operacional</label>
+                <div class="sistema-selector">
+                    <input type="radio" name="sistema" id="sys_android" value="Android">
+                    <label for="sys_android" class="radio-card android">
+                        <span class="material-icons-outlined">android</span>
+                        <span>Android</span>
+                    </label>
+
+                    <input type="radio" name="sistema" id="sys_ios" value="iOS">
+                    <label for="sys_ios" class="radio-card ios">
+                        <span class="material-icons-outlined">phone_iphone</span>
+                        <span>iOS</span>
+                    </label>
+
+                    <input type="radio" name="sistema" id="sys_windows" value="Windows/Outro" checked>
+                    <label for="sys_windows" class="radio-card default">
+                        <span class="material-icons-outlined">laptop</span>
+                        <span>Outro</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="grupo-input">
+                <label for="id_defeito">Defeito Relatado / Observações</label>
+                <textarea id="id_defeito" name="defeito" rows="3" placeholder="Descreva o problema (ex: Tela quebrada, não liga, loop infinito)..." required></textarea>
+            </div>
+
+            <div class="actions">
+                <button type="submit" class="btn-salvar">
+                    <span class="material-icons-outlined">save</span> Registrar Entrada
+                </button>
+                <button type="button" class="btn-voltar" onclick="window.location.href='/home'">
+                    Cancelar
+                </button>
+            </div>
+        </form>
+    </main>
+    <script>
+        // Máscara de telefone simples
+        const inputTel = document.getElementById('id_numero');
+        inputTel.addEventListener('input', (e) => {
+            let x = e.target.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
+            e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
+        });
+    </script>
+</body>
+</html>
