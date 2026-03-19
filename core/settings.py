@@ -15,10 +15,10 @@ AUTH_USER_MODEL = 'app.CustomUser'
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 # Defina os hosts reais em produção (ex: meudominio.com, 192.168.1.10)
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost,felipecell.squareweb.app').split(',')
 
 # CSRF: lista de origens confiáveis para requisições POST (necessário com HTTPS)
-CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', 'http://127.0.0.1,http://localhost').split(',')
+CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', 'http://127.0.0.1,http://localhost,https://felipecell.squareweb.app').split(',')
 
 # ── APPS ─────────────────────────────────────────────────────────────────────
 INSTALLED_APPS = [
