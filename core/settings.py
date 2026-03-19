@@ -138,8 +138,9 @@ DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 # ── HEADERS DE SEGURANÇA HTTP ─────────────────────────────────────────────────
 # Ativados apenas em produção (DEBUG=False) para não quebrar desenvolvimento local
 if not DEBUG:
-    # Força HTTPS. Ative somente quando tiver certificado SSL configurado.
-    SECURE_SSL_REDIRECT = True
+    # A Square Cloud já faz SSL termination no proxy.
+    # NÃO use SECURE_SSL_REDIRECT, pois causa loop infinito de redirecionamento.
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_HSTS_SECONDS = 31536000          # 1 ano
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
