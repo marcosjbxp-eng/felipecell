@@ -95,8 +95,17 @@ USE_TZ = True
 
 # ── ARQUIVOS ESTÁTICOS ────────────────────────────────────────────────────────
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'  # necessário para collectstatic em produção
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+}
+# Fallback para cloudinary_storage (sobrescreve collectstatic e usa atributo antigo)
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 # ── AUTENTICAÇÃO ──────────────────────────────────────────────────────────────
 AUTHENTICATION_BACKENDS = [
