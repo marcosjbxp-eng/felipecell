@@ -96,7 +96,7 @@ USE_TZ = True
 # ── ARQUIVOS ESTÁTICOS ────────────────────────────────────────────────────────
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'  # necessário para collectstatic em produção
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 # ── AUTENTICAÇÃO ──────────────────────────────────────────────────────────────
 AUTHENTICATION_BACKENDS = [
