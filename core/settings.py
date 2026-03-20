@@ -94,7 +94,7 @@ USE_I18N = True
 USE_TZ = True
 
 # ── ARQUIVOS ESTÁTICOS ────────────────────────────────────────────────────────
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'  # necessário para collectstatic em produção
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
