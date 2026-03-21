@@ -18,15 +18,27 @@ from .forms import UserProfileForm
 # ── HELPERS ───────────────────────────────────────────────────────────────────
 
 def conectar_google():
-    """Conecta à planilha via conta de serviço Google."""
-    # CORRIGIDO: caminho absoluto relativo ao BASE_DIR, não ao diretório de trabalho atual
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    keyfile = os.path.join(base_dir, 'api-google.json')
+    """Conecta à planilha via conta de serviço Google.
+    Prioriza variável de ambiente GOOGLE_CREDENTIALS_JSON para produção,
+    com fallback para o arquivo api-google.json em desenvolvimento local.
+    """
     scope = [
         'https://spreadsheets.google.com/feeds',
         'https://www.googleapis.com/auth/drive',
     ]
-    creds = ServiceAccountCredentials.from_json_keyfile_name(keyfile, scope)
+    
+    creds_json = os.getenv('GOOGLE_CREDENTIALS_JSON')
+    if creds_json:
+        # Produção: credenciais via variável de ambiente
+        import json as _json
+        creds_dict = _json.loads(creds_json)
+        creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+    else:
+        # Desenvolvimento local: arquivo JSON
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        keyfile = os.path.join(base_dir, 'api-google.json')
+        creds = ServiceAccountCredentials.from_json_keyfile_name(keyfile, scope)
+    
     cliente = gspread.authorize(creds)
     return cliente.open('Bot').sheet1
 
